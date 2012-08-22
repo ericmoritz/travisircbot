@@ -1,0 +1,12 @@
+{application, reluxbot,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { reluxbot_app, []}},
+  {env, []}
+ ]}.
