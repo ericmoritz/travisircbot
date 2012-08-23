@@ -14,6 +14,7 @@ start(_StartType, _StartArgs) ->
     ReluxBot = {reluxbot, reluxbot, ["reluxbot"]},
 
     {ok, Client} = eirc:start_client(?MODULE, [{bots, [ReluxBot]}]),
+    register(irc_client, Client),
     eirc:connect_and_logon(Client, "irc.freenode.net", 6667, "reluxbot"),
 
     % install the event handlers
@@ -21,6 +22,7 @@ start(_StartType, _StartArgs) ->
         {ok, Pid} ->
             ok = travis_events:add_handler(travis_events_echo_handler, []),
             ok = travis_events:add_handler(travis_events_say_handler, []),
+            ok = travis_events:add_handler(travis_events_drama_handler, []),
             {ok, Pid};
         {error, Reason} ->
             {error, Reason}

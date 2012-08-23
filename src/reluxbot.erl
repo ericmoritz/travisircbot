@@ -155,16 +155,25 @@ terminate(Reason, _State) ->
 
 %% Internal
 process_message(Msg) ->
-    RE = "(.+)#(.+) \\((.+) - (.+) : (.+)\\): The build (.+).$",
+    RE = "(.+)#(.+) \\((.+) - (.+) : (.+)\\): (.+)$",
     % this comment fixes by Emacs syntax hilighting " 
 
     case re:run(Msg, RE, [ungreedy]) of
         {match, [_FullRange|Ranges]} ->
-            [Repo, Build, Branch, Commit, Author, Status]
+            [Repo, Build, Branch, Commit, Author, Message]
                 = lists:map(fun({S, Len}) ->
                                     string:substr(Msg, S+1, Len)
                             end, Ranges),
-            StatusAtom = list_to_atom(Status),
+            StatusAtom = case Message of 
+                         "The build was broken." ->
+                             failed;
+                         "The build is still failing." ->
+                             failing;
+                         "The build was fixed." ->
+                             fixed;
+                         "The build passed." ->
+                             passed
+                         end,
             StatusProps = [{repo, Repo},
                            {build, Build},
                            {branch, Branch},
@@ -188,6 +197,34 @@ process_message_test_() ->
                              {author, "Jay Merrifield"}
                             ]}},
                    process_message("GannettDigital/django-relux#947 (master - ea69c97 : Jay Merrifield): The build passed.")
+                   ),
+     ?_assertEqual({travis, {status, fixed, [
+                             {repo, "GannettDigital/django-relux"},
+                             {build, "947"},
+                             {branch, "master"},
+                             {commit, "ea69c97"},
+                             {author, "Jay Merrifield"}
+                            ]}},
+                   process_message("GannettDigital/django-relux#947 (master - ea69c97 : Jay Merrifield): The build was fixed.")
+                   ),
+     ?_assertEqual({travis, {status, failing, [
+                             {repo, "GannettDigital/django-relux"},
+                             {build, "947"},
+                             {branch, "master"},
+                             {commit, "ea69c97"},
+                             {author, "Jay Merrifield"}
+                            ]}},
+                   process_message("GannettDigital/django-relux#947 (master - ea69c97 : Jay Merrifield): The build is still failing.")
+                   ),
+     ?_assertEqual({travis, {status, failed, [
+                             {repo, "GannettDigital/django-relux"},
+                             {build, "947"},
+                             {branch, "master"},
+                             {commit, "ea69c97"},
+                             {author, "Jay Merrifield"}
+                            ]}},
+                   process_message("GannettDigital/django-relux#947 (master - ea69c97 : Jay Merrifield): The build was broken.")
                    )
+
      ].
 -endif.
