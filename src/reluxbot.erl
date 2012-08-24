@@ -62,6 +62,12 @@ on_text(_, _, "[travis-ci] " ++ Msg, State) ->
             pass
     end,
     {ok, State};
+on_text(_, _, "!AUDIO " ++ Type, State) ->
+    erlang:apply(audio, list_to_atom(Type), []),
+    {ok, State};
+on_text(_, _, "!SAY " ++ Msg, State) ->
+    audio:say(Msg),
+    {ok, State};
 on_text(From, To, Text, State) ->
     io:format("TEXT: From (~p) To (~p) - ~p ~n", [From, To, Text]),
     {ok, State}.

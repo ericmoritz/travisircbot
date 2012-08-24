@@ -10,10 +10,10 @@ init([]) ->
     {ok, state}.
 
 handle_event({status, failed, _}, State) ->
-    os:cmd("afplay priv/drama.mp3"),
+    audio:drama(),
     {ok, State};
 handle_event({status, fixed, _}, State) ->
-    os:cmd("afplay priv/clap.mp3"),
+    audio:clap(),
     {ok, State};
 handle_event(_, State) ->
     {ok, State}.

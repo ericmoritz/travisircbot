@@ -6,16 +6,14 @@
          handle_info/2, terminate/2, code_change/3]).
 
 %% gen_event callbacks
-init([DeviceFile]) ->
-    Cmd = lists:flatten(["python priv/arduino.py ", DeviceFile]),
-    Port = open_port({spawn, Cmd}, [stream]),
-    {ok, Port}.
+init([]) ->
+    {ok, state}.
 
 handle_event({status, failed, _}, Port) ->
-    port_command(Port, "F"),
+    arduino_device:fail(),
     {ok, Port};
 handle_event({status, fixed, _}, Port) ->
-    port_command(Port, "P"),
+    arduino_device:pass(),
     {ok, Port};
 handle_event(_, State) ->
     {ok, State}.

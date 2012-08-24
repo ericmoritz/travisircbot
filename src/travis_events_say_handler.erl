@@ -11,15 +11,15 @@ init([]) ->
 
 handle_event({status, failed, StatusProps}, State) ->
     Author = proplists:get_value(author, StatusProps),
-    os:cmd(["echo ", $", Author, " broke the build", $", " | say"]),
+    audio:say([Author, " broke the build"]),
     {ok, State};
 handle_event({status, failing, StatusProps}, State) ->
     Author = proplists:get_value(author, StatusProps),
-    os:cmd(["echo ", $", Author, " does not care that the build fails", $", " | say"]),
+    audio:say([Author, " does not care that the build is still failing"]),
     {ok, State};
 handle_event({status, fixed, StatusProps}, State) ->
     Author = proplists:get_value(author, StatusProps),
-    os:cmd(["echo ", $", Author, " is a hero", $", " | say"]),
+    audio:say([Author, " as a hero"]),
     {ok, State};
 
 handle_event(_, State) ->
