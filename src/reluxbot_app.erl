@@ -23,6 +23,12 @@ start(_StartType, _StartArgs) ->
             ok = travis_events:add_handler(travis_events_echo_handler, []),
             ok = travis_events:add_handler(travis_events_say_handler, []),
             ok = travis_events:add_handler(travis_events_drama_handler, []),
+            case application:get_env(arduino) of
+                {ok, DeviceFile} ->
+                    ok = travis_events:add_handler(travis_events_arduino_handler, [DeviceFile]);
+                _ ->
+                    pass
+            end,
             {ok, Pid};
         {error, Reason} ->
             {error, Reason}
